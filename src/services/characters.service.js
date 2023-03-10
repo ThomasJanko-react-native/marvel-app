@@ -10,7 +10,7 @@ function generateHash(ts) {
     return hash;
 }
 
-async function getCharacters() {
+async function getCharacters(page) {
     const ts = 1;
     // const hash = generateHash(ts);
     const hash = '3200d4b23a1b118f42bb12eeeaaa31e4'
@@ -20,14 +20,39 @@ async function getCharacters() {
         apikey: API_KEY,
         ts: ts,
         hash: hash,
+        offset: page * 20
       },
       headers: {
         Accept: '*/*',
       },
+      
+    });
+  
+    const characters = response.data.data.results;
+    return characters;
+  }
+
+  async function getCharacterById(id) {
+    const ts = 1;
+    // const hash = generateHash(ts);
+    const hash = '3200d4b23a1b118f42bb12eeeaaa31e4'
+  
+    const response = await axios.get(`${BASE_URL}/characters/${id}`, {
+      params: {
+        apikey: API_KEY,
+        ts: ts,
+        hash: hash,
+        // populate: 'image',
+        // offset: page * 20
+      },
+      headers: {
+        Accept: '*/*',
+      },
+      
     });
   
     const characters = response.data.data.results;
     return characters;
   }
   
-  export default getCharacters;
+  export {getCharacters, getCharacterById};

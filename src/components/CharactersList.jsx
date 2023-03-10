@@ -1,24 +1,30 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, ActivityIndicator} from 'react-native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
-import getCharacters from '../services/characters.service';
+import {getCharacterById, getCharacters} from '../services/characters.service';
+import Loader from './Loader';
 
 const CharactersList = () => {
 
     const [loading, setLoading] = useState(true);
+    const [dataload, setDataload] = useState(false);
     const [error, setError] = useState();
 
     const [characters, setCharacters] = useState([])
+    const [page, setPage] = useState(0)
 
     useEffect(() => {
         fetchData();
     }, [])
 
     async function fetchData() {
+    setDataload(true)
     try {
-      const response = await getCharacters();
-      setCharacters(response);
-      console.log(response)
+      const response = await getCharacters(page);
+        setCharacters((prev) => [...prev, ...response])
+        setPage(page + 1)
+        setDataload(false)
     } catch (error) {
       setError(error);
     } finally {
@@ -26,14 +32,22 @@ const CharactersList = () => {
     }
   }
 
+
   if (loading) {
-    return <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}><Text style={{fontSize: 24}}>Loading...</Text></View> ;
-    // return <Loader/>
+    // return <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}><Text style={{fontSize: 24}}>Loading...</Text></View> ;
+    return <Loader/>
   }
   if (error) {
     return  <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}><Text style={{fontSize: 24}}>Error: {error.message}</Text></View> ;
   }
-    
+
+//   const renderFooter = () => {
+//     {dataload && (
+//         <Loader/>
+//       )}
+//   };
+
+  
     return (
         <View style={styles.container}>
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
@@ -43,21 +57,38 @@ const CharactersList = () => {
             <FlatList style={styles.list}
                 data={characters}
                 renderItem={({ item }) => <ItemCard item={item} />}
-                keyExtractor={(item) => item.id}
-      />
+                keyExtractor={(item, index) => index}
+                onEndReachedThreshold={0.5}
+                onEndReached={fetchData}
+                // ListFooterComponent={renderFooter}
+                bounces
+
+            />
             </View>
+            {dataload && <Loader/>}
         </View>
     );
+    
 }
 
 
-const ItemCard = ({item}) => (
+const ItemCard = ({item}) => {
+    const navigation = useNavigation();
+    
+    const handlePress = () => {
+        navigation.navigate("Details", { id: item.id });
+    }
+    
+    return (
     <View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handlePress}>
             <Text style={styles.item}>- {item.name}</Text>
         </TouchableOpacity>
     </View>
 );
+}
+
+
 
 const styles = StyleSheet.create({
     container: {
@@ -79,7 +110,7 @@ const styles = StyleSheet.create({
       },
       list: {
         marginLeft: 10,
-        
+        height: 500
       }
 })
 
