@@ -4,6 +4,8 @@ import {View, StyleSheet, Text, ActivityIndicator} from 'react-native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import {getCharacterById, getCharacters} from '../services/characters.service';
 import Loader from './Loader';
+import FlashMessage, { showMessage } from "react-native-flash-message";
+
 
 const CharactersList = () => {
 
@@ -27,6 +29,11 @@ const CharactersList = () => {
         setDataload(false)
     } catch (error) {
       setError(error);
+      showMessage({
+        message: 'Error !',
+        description: error.message,
+        type: 'danger',
+      });
     } finally {
       setLoading(false);
     }
@@ -38,7 +45,8 @@ const CharactersList = () => {
     return <Loader/>
   }
   if (error) {
-    return  <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}><Text style={{fontSize: 24}}>Error: {error.message}</Text></View> ;
+    return   <FlashMessage autoHide={true} duration={6000} position="top" /> ;
+    // return  <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}><Text style={{fontSize: 24}}>Error: {error.message}</Text></View> ;
   }
 
 //   const renderFooter = () => {
@@ -66,6 +74,7 @@ const CharactersList = () => {
             />
             </View>
             {dataload && <Loader/>}
+
         </View>
     );
     

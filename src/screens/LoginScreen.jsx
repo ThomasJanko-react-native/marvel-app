@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import LoginForm from '../components/LoginForm';
 import logo from '../assets/marvel_logo.png'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import FlashMessage, { showMessage } from "react-native-flash-message";
 
 function LoginScreen({ navigation }) {
 
@@ -14,10 +17,19 @@ function LoginScreen({ navigation }) {
       <LoginForm />
       <Button
         title="Go to Characters Screen !"
-        onPress={() => navigation.navigate('CharactersScreen')}
+        onPress={() => navigation.navigate('CharactersScreen') }
       />
-
-
+      <Button
+        title="Logout"
+        onPress={() => {
+          showMessage({
+            message: 'Logout',
+            description: 'Your account has been disconnected !',
+            type: 'info',
+          });
+        }}
+      />
+      <FlashMessage floating autoHide={true} duration={6000} position="top" />
     </View>
   );
 }
